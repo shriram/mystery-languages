@@ -71,6 +71,8 @@
     (display "••••• TESTING ") (write e) (displayln " (blank if all tests pass)")
     (flush-output)
     (define results (run-multiple e namespaces))
+    (unless (= (length results) (length result-exprs))
+      (error 'TEST "number of results ~a does not match number of result terms ~a" (length results) (length result-exprs)))
     (for-each (λ (r idx)
                 (let ([res (list-ref results idx)])
                   (match r
