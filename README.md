@@ -40,9 +40,9 @@ This means everything is alright!
 
 ## Learn More
 
-You should probably watch this video before you continue; everything
-below will make much more sense:
-
+You should probably watch
+[this video](https://youtu.be/EogblZ1Rdpo)
+before you continue; everything below will make much more sense.
 
 -----
 
