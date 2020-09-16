@@ -1,6 +1,6 @@
 #lang racket
 
-(require [for-syntax syntax/parse] mystery-languages/utils mystery-languages/common)
+(require [for-syntax syntax/parse] mystery-languages/utils mystery-languages/common racket/control)
 (require [for-syntax racket])
 
 (provide #%datum #%top)
@@ -16,10 +16,9 @@
 
 (provide [rename-out (cobol-app #%app)])
 
-(provide [rename-out (wrapping-mb #%module-begin)])
-(provide [rename-out (reset-top-level #%top-interaction)])
+(define return-frames (box empty))
 
-(define-syntax (wrapping-mb e)
+(define-syntax (wrap-module-begin e)
   (syntax-case e ()
     [(_ d-or-e ...)
      #'((reset-top-level d-or-e) ...)]))
@@ -27,7 +26,7 @@
 (define-syntax (reset-top-level e)
   (syntax-case e ()
     [(deffun H B) e]
-    [(defvar V B) 
+    [(defvar V B)
      #'(defvar V (reset-top-level e))]
     [b
      #'(begin (set! return-frames (box empty))
@@ -58,8 +57,6 @@
        (set-box! locally-defined-functions
                  (cons (syntax->datum #'fname) (unbox locally-defined-functions)))
        #'(define (fname arg ...) body ...))]))
-
-(define return-frames (box empty))
 
 (define (remove-frame fun-name)
   (set-box! return-frames
