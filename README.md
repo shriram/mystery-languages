@@ -13,7 +13,6 @@ Dependencies Mode | Auto)
 
   `https://github.com/shriram/mystery-languages.git`
   
-
 * At the command line, run
 
   `raco pkg install https://github.com/shriram/mystery-languages.git`
