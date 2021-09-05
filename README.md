@@ -8,9 +8,11 @@ This is the repository for Mystery Languages. Mystery languages are based on the
 Install this package using the Racket packet manager:
 
 * From DrRacket, go to File | Install Package, and enter the URL
+(If DrRacket says `missing dependencies`, click Show Details |
+Dependencies Mode | Auto)
 
   `https://github.com/shriram/mystery-languages.git`
-
+  
 * At the command line, run
 
   `raco pkg install https://github.com/shriram/mystery-languages.git`
