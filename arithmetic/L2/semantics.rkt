@@ -4,7 +4,8 @@
 (require [for-syntax racket])
 
 (provide #%module-begin #%top-interaction
-         #%datum #%top #%app)
+         #%top #%app
+         [rename-out (float-datum #%datum)])
 
 (provide [rename-out (plus  +)
                      (minus -)
@@ -21,6 +22,11 @@
            (map (λ (n)
                   (if (exact? n) (exact->inexact n) n))
                 ns))))
+
+(define-syntax-rule (float-datum . n)
+  (if (number? (#%datum . n))
+      ((arith-maker (lambda (x) x)) (#%datum . n))
+      (#%datum . n)))
 
 (define plus  (arith-maker +))
 (define minus (arith-maker -))

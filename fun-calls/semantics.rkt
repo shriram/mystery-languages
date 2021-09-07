@@ -8,7 +8,7 @@
 (define-values (namespaces lang-print-names)
   (make-namespaces-and-lang-print-names (list 'mystery-languages/fun-calls/L1/semantics
                                               'mystery-languages/fun-calls/L2/semantics
-                                              #;'mystery-languages/fun-calls/L3/semantics)))
+                                              'mystery-languages/fun-calls/L3/semantics)))
 
 (define-syntax (multi-runner stx)
   (syntax-case stx (TEST)

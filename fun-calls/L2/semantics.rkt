@@ -20,26 +20,20 @@
 (define-syntax (goto-app e)
   (syntax-case e ()
     [(_ f a ...)
-     (if (member (syntax->datum #'f) (unbox locally-defined-functions))
-         #'(let ([v (unbox top-level-continuation)])
-             (if v
-                 (v (f a ...))
-                 (f a ...)))  ;; THIS DOESN'T LOOK QUITE RIGHT!
-         #'(if (unbox top-level-continuation)
-               (f a ...)
-               (let ([v (let/cc k
-                          (set-box! top-level-continuation k)
-                          (f a ...))])
-                 (set-box! top-level-continuation #f) ;; restore top-level!
-                 v)))]))
+     #'(if (unbox top-level-continuation)
+           (#%app f a ...)
+           (let ([v (let/cc k
+                      (set-box! top-level-continuation k)
+                      (#%app f a ...))])
+             (set-box! top-level-continuation #f)
+             v))]))
 
 (define-syntax (deffun stx)
   (syntax-parse stx
     [(_ (fname:id arg:id ...) body:expr ...+)
-     (begin
-       (set-box! locally-defined-functions
-                 (cons (syntax->datum #'fname) (unbox locally-defined-functions)))
-       #'(define (fname arg ...) body ...))]))
+     #'(define (fname arg ...)
+         ((unbox top-level-continuation)
+          (begin body ...)))]))
 
 (define top-level-continuation (box #f))
 
