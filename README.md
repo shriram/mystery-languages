@@ -180,7 +180,6 @@ For instance:
 
     [conditionals +]
     deffun
-    ++
 
 `deffun` defines functions:
 
