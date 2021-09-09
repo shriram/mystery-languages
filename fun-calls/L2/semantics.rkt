@@ -22,11 +22,11 @@
     [(_ f a ...)
      #'(if (unbox top-level-continuation)
            (#%app f a ...)
-           (let ([v (let/cc k
-                      (set-box! top-level-continuation k)
-                      (#%app f a ...))])
-             (set-box! top-level-continuation #f)
-             v))]))
+           (let/cc k
+             (dynamic-wind
+              (lambda () (set-box! top-level-continuation k))
+              (lambda () (#%app f a ...))
+              (lambda () (set-box! top-level-continuation #f)))))]))
 
 (define-syntax (deffun stx)
   (syntax-parse stx

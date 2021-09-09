@@ -20,10 +20,9 @@
 
 (define-syntax-rule (cobol-app f a ...)
   (let ([fv f])
-    (cond
-      [(procedure? fv) (fv a ...)]
-      [(deffun-fun? fv) ((deffun-fun-fun fv) (lambda () a) ...)]
-      [else (fv a ...)])))
+    (if (deffun-fun? fv)
+        ((deffun-fun-fun fv) (lambda () a) ...)
+        (fv a ...))))
 
 (define-syntax-rule (deffun (f a ...) body ...)
   (define f
