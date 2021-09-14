@@ -36,8 +36,8 @@
             [return-k
              (return-k (run-body))]
             [else
-             (let ([v (let/cc k
-                        (set! return-k k)
-                        (run-body))])
-               (set! return-k #f)
-               v)]))))))
+             (let/cc k
+              (dynamic-wind
+                (lambda () (set! return-k k))
+                (lambda () (run-body))
+                (lambda () (set! return-k #f))))]))))))
