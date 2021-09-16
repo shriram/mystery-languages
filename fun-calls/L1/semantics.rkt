@@ -19,5 +19,5 @@
 
 (define-syntax (deffun stx)
   (syntax-parse stx
-    [(_ (fname:id arg:id ...) body:expr ...+)
-     #'(define (fname arg ...) body ...)]))
+    [(_ (fname:id arg:id ...) body:expr)
+     #'(define (fname arg ...) body)]))

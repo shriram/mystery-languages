@@ -24,14 +24,14 @@
         ((deffun-fun-fun fv) (lambda () a) ...)
         (fv a ...))))
 
-(define-syntax-rule (deffun (f a ...) body ...)
+(define-syntax-rule (deffun (f a ...) body)
   (define f
     (let ([return-k #f])
       (deffun-fun
         (lambda (a ...)
           (define (run-body)
             (let ([a (a)] ...)
-              body ...))
+              body))
           (cond
             [return-k
              (return-k (run-body))]
