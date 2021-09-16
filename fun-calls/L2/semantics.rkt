@@ -30,10 +30,10 @@
 
 (define-syntax (deffun stx)
   (syntax-parse stx
-    [(_ (fname:id arg:id ...) body:expr ...+)
+    [(_ (fname:id arg:id ...) body:expr)
      #'(define (fname arg ...)
          ((unbox top-level-continuation)
-          (begin body ...)))]))
+          body))]))
 
 (define top-level-continuation (box #f))
 
