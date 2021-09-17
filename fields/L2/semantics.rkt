@@ -16,15 +16,15 @@
 
 (provide object oget)
 
-(define-syntax wrap-fn-term
-  (syntax-rules ()
-    [(_ fn)
-     (if (symbol? 'fn)
-         'fn
-         (let ([fn-v fn])
-           (if (string? fn-v)
-               fn-v
-               (error 'field-name "~a must be a name or string" 'fn))))]))
+(define-syntax (wrap-fn-term stx)
+  (syntax-parse stx
+    [(_ fn:id)
+     #`'fn]
+    [(_ fn:expr)
+     #`(let ([fn-v fn])
+         (if (string? fn-v)
+             fn-v
+             (error 'field-name "~a must be a name or string" 'fn)))]))
 
 (define-syntax (object stx)
   (syntax-parse stx
