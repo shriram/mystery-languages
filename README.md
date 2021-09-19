@@ -195,6 +195,16 @@ all legal function definitions:
     (TEST (f) 3 3 3)
     (TEST (g 5) 10 10 10)
     (TEST (h "a" "b" "c") "abc" "abc" "abc")
+    
+
+### `scope`
+
+    [fun-calls +]
+    lambda λ let
+    empty list cons
+    map filter
+    
+These extra constructs have the same meaning as in `#lang smol/hof`.
 
 ### `fields`
 
