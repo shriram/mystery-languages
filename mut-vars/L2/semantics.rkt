@@ -39,7 +39,7 @@
               (let ([tmp arg] ...)
                 (make-variable-protocol arg tmp)
                 ...
-                body ...)))))]))
+                (let () body ...))))))]))
 
 (define-syntax (defvar stx)
   (syntax-parse stx
