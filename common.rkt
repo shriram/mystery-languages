@@ -7,7 +7,7 @@
 
 (provide object oget oset an-object? an-object an-object-ht)
 
-(provide vset)
+(provide set!)
 
 ;; ---------- basic
 
@@ -48,10 +48,3 @@
      #'(hash-set! (an-object-ht o)
                   'fn
                   v)]))
-
-;; ---------- mutable variables
-
-(define-syntax (vset stx)
-  (syntax-parse stx
-    [(_ var:id val:expr)
-     #'(set! var val)]))

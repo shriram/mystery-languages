@@ -29,7 +29,7 @@
 
 (define (run/okay-or-error expr n)
   (with-handlers ([exn? (λ (ex) (ML-error ex))])
-    (ML-okay (eval expr n))))
+    (ML-okay (force (eval expr n)))))
 
 (define (run-multiple e ns)
   (map (λ (n) (run/okay-or-error e n)) ns))
@@ -66,20 +66,28 @@
   (newline)
   (flush-output))
 
-(define (test-output e result-exprs namespaces)
-  (let ([indices (range 0 (length result-exprs))])
+(define (test-output e expecteds namespaces)
+  (let ([indices (range 0 (length expecteds))])
     (display "••••• TESTING ") (write e) (displayln " (blank if all tests pass)")
     (flush-output)
-    (define results (run-multiple e namespaces))
-    (unless (= (length results) (length result-exprs))
-      (error 'TEST "number of results ~a does not match number of result terms ~a" (length results) (length result-exprs)))
-    (for-each (λ (r idx)
-                (let ([res (list-ref results idx)])
-                  (match r
-                    ['failure      (check-pred ML-error? res)]
-                    ['void         (check-pred (λ (v) (void? (ML-okay-val v))) res)]
-                    [(list 'not w) (check-pred (λ (v) (and (ML-okay? v) (not (equal? w (ML-okay-val v))))) res)]
-                    [(cons 'not _) (error 'TEST "not takes only one value in ~a" r)] 
-                    [else          (check-equal? (ML-okay-val res) r)])))
-              result-exprs indices)
+    (define actuals (run-multiple e namespaces))
+    (unless (= (length actuals) (length expecteds))
+      (error 'TEST "number of results ~a does not match number of result terms ~a" (length actuals) (length expecteds)))
+    (for ([actual actuals]
+          [spec expecteds])
+      (match spec
+        ['failure
+         (check-pred ML-error? actual
+                     (format "expected an error, received ~a" actual))]
+        [`(not ,w)
+         (check-pred
+          (λ (v) (and (ML-okay? v) (not (equal? w (ML-okay-val v)))))
+          actual
+          (format "expected a value that is not ~a, recieved ~a" w actual))]
+        [`(not ,@_)
+         (error 'TEST "not takes only one value in ~a" spec)]
+        ['void
+         (check-equal? actual (ML-okay (void)))]
+        [else
+         (check-equal? actual (ML-okay spec))]))
     (newline)))

@@ -14,4 +14,4 @@
          if and or not
          deffun)
 
-(provide begin vset)
+(provide begin set!)

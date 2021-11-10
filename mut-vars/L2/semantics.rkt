@@ -14,7 +14,7 @@
          if and or not
          deffun)
 
-(provide begin vset)
+(provide begin set!)
 
 (provide (rename-out [app-by-ref #%app]))
 
@@ -26,14 +26,15 @@
            (syntax-case stx (set-to do-not-unbox)
              [v                (identifier? #'v) #'(unbox corresponding-tmp-var-name)]
              [(v set-to w)     (identifier? #'v) #'(set-box! corresponding-tmp-var-name w)]
-             [(v do-not-unbox) (identifier? #'v) #'corresponding-tmp-var-name])))]))
+             [(v do-not-unbox) (identifier? #'v) #'corresponding-tmp-var-name]
+             [(v . rest) (identifier? #'v) #'(app-by-ref (unbox corresponding-tmp-var-name) . rest)])))]))
      
 
 (define-syntax (deffun stx)
   (syntax-parse stx
     [(_ (fname:id arg:id ...) body:expr ...+)
      (with-syntax ([(tmp ...) (generate-temporaries #'(arg ...))])
-       #'(define fname
+       #'(defvar fname
            (record-local-function
             (lambda (arg ...)
               (let ([tmp arg] ...)
@@ -49,7 +50,7 @@
            (define tmp (box rhs))  ;; NOTE: this would break recursion if defvar were recursive
            (make-variable-protocol var tmp)))]))
 
-(define-syntax (vset stx)
+(define-syntax (set! stx)
   (syntax-parse stx
     [(_ var:id val:expr)
      #'(var set-to val)]))
