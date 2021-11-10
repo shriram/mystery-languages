@@ -14,7 +14,7 @@
          if and or not
          deffun)
 
-(provide begin vset)
+(provide begin set!)
 
 (provide (rename-out [app-by-ref #%app]))
 
@@ -50,7 +50,7 @@
            (define tmp (box rhs))  ;; NOTE: this would break recursion if defvar were recursive
            (make-variable-protocol var tmp)))]))
 
-(define-syntax (vset stx)
+(define-syntax (set! stx)
   (syntax-parse stx
     [(_ var:id val:expr)
      #'(var set-to val)]))

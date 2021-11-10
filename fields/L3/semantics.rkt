@@ -16,12 +16,12 @@
 
 (provide object oget)
 
-(define-syntax wrap-fn-term
-  (syntax-rules ()
-    [(_ fn)
-     (if (symbol? 'fn)
-         'fn
-         fn)]))
+(define-syntax (wrap-fn-term stx)
+  (syntax-parse stx
+    [(_ fn:id)
+     #`'fn]
+    [(_ fn:expr)
+     #`fn]))
 
 (define-syntax (object stx)
   (syntax-parse stx

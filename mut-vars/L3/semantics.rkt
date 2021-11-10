@@ -14,7 +14,7 @@
          if and or not
          deffun)
 
-(provide begin vset)
+(provide begin set!)
 
 (provide (rename-out [app-by-copy-result #%app]))
 

@@ -16,8 +16,8 @@
                      (minus -)
                      (mult  *)]
          < <= > >=
-         and or not
          = <>
+         ++
          defvar)
 
 (provide [rename-out (int-div /)])

@@ -12,8 +12,8 @@
                      (mult  *)
                      (div   /)]
          < <= > >=
-         and or not
          = <>
+         ++
          defvar)
 
 (define (arith-maker op)

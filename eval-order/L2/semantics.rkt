@@ -17,7 +17,7 @@
 (provide <> defvar deffun)
 
 (provide [rename-out (lazy:begin begin)])
-(provide vset)
+(provide set!)
 
 (lazy:define (<> a b)
              (lazy:not (lazy:= a b)))
@@ -32,7 +32,7 @@
     [(_ var:id rhs:expr)
      #'(lazy:define var rhs)]))
 
-(define-syntax (vset stx)
+(define-syntax (set! stx)
   (syntax-parse stx
     [(_ var:id val:expr)
      #'(lazy:set! var val)]))

@@ -18,6 +18,6 @@
 
 (provide + - * /
          < <= > >=
-         and or not
          = <>
+         ++
          defvar)
