@@ -256,7 +256,7 @@ For instance:
 
 ### `eval-order`
 
-    [mut-vars]
+    [mut-vars +]
 
 No new constructs! Just new behavior…
 
