@@ -149,7 +149,6 @@ an expression.
 
     + - * /
     < <= > >=
-    and or not
     = <>
 	defvar
 

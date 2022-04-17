@@ -40,7 +40,7 @@
        (if (boolean? e0-val)
            (if e0-val
                #true
-               (tf-or e1 ...))
+               (strict-or e1 ...))
            (error 'or "condition must be a boolean: ~a" e0-val)))]))
 
 (define (strict-not v)
