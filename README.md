@@ -226,7 +226,7 @@ instance,
 
     [fun-calls +]
     begin
-    vset
+    set!
 
 `begin` allows a sequence of expressions:
 
