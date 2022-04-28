@@ -232,10 +232,10 @@ instance,
 
     (begin <expr> …)
 
-`vset` changes the value of a variable:
+`set!` changes the value of a variable:
 
 	(defvar v 3)
-	(vset v 4)
+	(set! v 4)
 	(TEST v 4 4 4)
 
 ### `mut-structs`
