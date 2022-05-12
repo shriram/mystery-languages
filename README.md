@@ -203,7 +203,7 @@ all legal function definitions:
     empty list cons
     map filter
     
-These extra constructs have the same meaning as in `#lang smol/hof`.
+These extra constructs have the same meaning as in Racket. Links to Racket's document: [`lambda` and `λ`](https://docs.racket-lang.org/guide/lambda.html), [`let`](https://docs.racket-lang.org/guide/let.html), [`empty`](https://docs.racket-lang.org/reference/pairs.html#%28def._%28%28lib._racket%2Flist..rkt%29._empty%29%29), [`list`](https://docs.racket-lang.org/reference/pairs.html#%28def._%28%28quote._~23~25kernel%29._list%29%29), [`cons`](https://docs.racket-lang.org/reference/pairs.html#%28def._%28%28quote._~23~25kernel%29._cons%29%29), [`map`](https://docs.racket-lang.org/reference/pairs.html#%28def._%28%28lib._racket%2Fprivate%2Fmap..rkt%29._map%29%29), and [`filter`](https://docs.racket-lang.org/reference/pairs.html#%28def._%28%28lib._racket%2Fprivate%2Flist..rkt%29._filter%29%29).
 
 ### `fields`
 
