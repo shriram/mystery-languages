@@ -3,6 +3,8 @@
 (require [for-syntax syntax/parse] mystery-languages/utils mystery-languages/common)
 (require [for-syntax racket])
 
+(require [rename-in racket [begin racket:begin]])
+
 (provide #%module-begin #%top-interaction
          #%datum #%top)
 
@@ -46,7 +48,7 @@
   (syntax-parse stx
     [(_ var:id rhs:expr)
      (with-syntax ([(tmp) (generate-temporaries #'(var))])
-       #'(begin
+       #'(racket:begin
            (define tmp (box rhs))  ;; NOTE: this would break recursion if defvar were recursive
            (make-variable-protocol var tmp)))]))
 

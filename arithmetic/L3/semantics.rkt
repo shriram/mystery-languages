@@ -3,38 +3,31 @@
 (require [for-syntax syntax/parse] mystery-languages/utils mystery-languages/common)
 (require [for-syntax racket])
 
-(provide #%module-begin #%top-interaction
-         #%datum #%top #%app)
+(define (process-numbers d)
+  (if (number? d)
+      (if (exact-integer? d)
+          d
+          (exact->inexact d))
+      d))
 
-(define (better-inexact->exact x)
-  (if (number? x)
-      (string->number
-        (string-append "#e" (number->string x)))
-      x))
+(define-syntax-rule (my-#%app fun arg ...)
+  (#%app (#%app process-numbers fun) (#%app process-numbers arg) ...))
 
-(provide [rename-out (plus  +)
-                     (minus -)
-                     (mult  *)]
+(define (quotient-or-/ . ns)
+  (if (and (pair? ns) (andmap exact-integer? ns))
+      (foldl (lambda (n so-far)
+               (quotient so-far n))
+             (first ns)
+             (rest ns))
+      (apply / ns)))
+
+(provide + - * (rename-out [quotient-or-/ /])
          < <= > >=
          = <>
          ++
-         defvar)
-
-(provide [rename-out (int-div /)])
-
-(define (int-div . ns)
-  (let ([result (apply (arith-maker /) ns)])
-    (if (andmap (and/c integer? exact?) ns)
-        (floor result)
-        result)))
-
-(define (arith-maker op)
-  (λ ns
-    (apply op
-           (map (λ (n)
-                  (if (inexact? n) (better-inexact->exact n) n))
-                ns))))
-
-(define plus  (arith-maker +))
-(define minus (arith-maker -))
-(define mult  (arith-maker *))
+         defvar
+         #%module-begin
+         #%top-interaction
+         #%top
+         (rename-out [my-#%app #%app])
+         #%datum)
