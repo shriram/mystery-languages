@@ -5,39 +5,59 @@
 
 (provide #%datum #%top)
 
-(provide + - * /
-         < <= > >=
-         = <>
-         defvar
-         ++
+(provide defvar
          if and or not)
 
 (provide deffun)
 
-(provide [rename-out [cobol-app #%app]])
+(provide [rename-out [lazy-app #%app]])
+(provide
+ [rename-out
+  [lazy-+ +]
+  [lazy-- -]
+  [lazy-* *]
+  [lazy-/ /]
+  [lazy-< <]
+  [lazy-<= <=]
+  [lazy-> >]
+  [lazy->= >=]
+  [lazy-= =]
+  [lazy-<> <>]
+  [lazy-++ ++]
+  ])
 
-(struct deffun-fun (fun))
+(define (make-lazy op)
+  (lambda args
+    (apply op (map (lambda (thunk) (thunk)) args))))
 
-(define-syntax-rule (cobol-app f a ...)
-  (let ([fv f])
-    (if (deffun-fun? fv)
-        ((deffun-fun-fun fv) (lambda () a) ...)
-        (fv a ...))))
+(define lazy-+ (make-lazy +))
+(define lazy-- (make-lazy -))
+(define lazy-* (make-lazy *))
+(define lazy-/ (make-lazy /))
+(define lazy-< (make-lazy <))
+(define lazy-<= (make-lazy <=))
+(define lazy-> (make-lazy >))
+(define lazy->= (make-lazy >=))
+(define lazy-= (make-lazy =))
+(define lazy-<> (make-lazy <>))
+(define lazy-++ (make-lazy ++))
+
+(define-syntax-rule (lazy-app f a ...)
+  (f (lambda () a) ...))
 
 (define-syntax-rule (deffun (f a ...) body)
   (define f
     (let ([return-k #f])
-      (deffun-fun
-        (lambda (a ...)
-          (define (run-body)
-            (let ([a (a)] ...)
-              body))
-          (cond
-            [return-k
-             (return-k (run-body))]
-            [else
-             (let/cc k
-              (dynamic-wind
-                (lambda () (set! return-k k))
-                (lambda () (run-body))
-                (lambda () (set! return-k #f))))]))))))
+      (lambda (a ...)
+        (define (run)
+          (let ([a (a)] ...)
+            body))
+        (cond
+          [return-k
+           (return-k (run))]
+          [else
+           (let/cc k
+             (dynamic-wind
+              (lambda () (set! return-k k))
+              (lambda () (run))
+              (lambda () (set! return-k #f))))])))))

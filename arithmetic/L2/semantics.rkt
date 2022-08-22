@@ -3,32 +3,21 @@
 (require [for-syntax syntax/parse] mystery-languages/utils mystery-languages/common)
 (require [for-syntax racket])
 
-(provide #%module-begin #%top-interaction
-         #%top #%app
-         [rename-out (float-datum #%datum)])
+(define (inexact-value d)
+  (if (number? d)
+      (exact->inexact d)
+      d))
 
-(provide [rename-out (plus  +)
-                     (minus -)
-                     (mult  *)
-                     (div   /)]
+(define-syntax-rule (my-#%app fun arg ...)
+  (#%app (#%app inexact-value fun) (#%app inexact-value arg) ...))
+
+(provide + - * /
          < <= > >=
          = <>
          ++
-         defvar)
-
-(define (arith-maker op)
-  (λ ns
-    (apply op
-           (map (λ (n)
-                  (if (exact? n) (exact->inexact n) n))
-                ns))))
-
-(define-syntax-rule (float-datum . n)
-  (if (number? (#%datum . n))
-      ((arith-maker (lambda (x) x)) (#%datum . n))
-      (#%datum . n)))
-
-(define plus  (arith-maker +))
-(define minus (arith-maker -))
-(define mult  (arith-maker *))
-(define div   (arith-maker /))
+         defvar
+         #%module-begin
+         #%top-interaction
+         #%top
+         (rename-out [my-#%app #%app])
+         #%datum)

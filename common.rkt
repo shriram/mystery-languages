@@ -3,7 +3,7 @@
 (require [for-syntax syntax/parse] mystery-languages/utils)
 (require [for-syntax racket])
 
-(provide <> ++ defvar deffun)
+(provide <> ++ begin defvar deffun)
 
 (provide object oget oset an-object? an-object an-object-ht)
 
@@ -14,6 +14,13 @@
 (define (<> a b) (not (= a b)))
 
 (define ++ string-append)
+
+(define-syntax begin
+  (syntax-rules ()
+    [(_) (void)]
+    [(_ prepare ... result)
+     (let* ([_ prepare] ...)
+       result)]))
 
 (define-syntax (defvar stx)
   (syntax-parse stx
