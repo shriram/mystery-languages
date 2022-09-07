@@ -28,7 +28,7 @@
   (values nss lpns))
 
 (define (run/okay-or-error expr n)
-  (with-handlers ([exn? (λ (ex) (ML-error ex))])
+  (with-handlers ([exn? (λ (ex) (ML-error (exn-message ex)))])
     (ML-okay (force (eval expr n)))))
 
 (define (run-multiple e ns)
@@ -76,7 +76,7 @@
     (for ([actual actuals]
           [spec expecteds])
       (match spec
-        ['failure
+        [(or 'failure 'error)
          (check-pred ML-error? actual
                      (format "expected an error, received ~a" actual))]
         [`(not ,w)
