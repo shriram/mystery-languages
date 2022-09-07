@@ -141,9 +141,9 @@ an expression.
 
 ### `strings`
 
-    ++ string=?
+    ++ string=? string-ref
 
-`++` appends strings. `string=?` compares them for equality.
+`++` appends strings. `string=?` compares them for equality. `string-ref` refers to part of a string.
 
 ### `arithmetic`
 
