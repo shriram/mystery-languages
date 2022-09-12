@@ -1,8 +1,15 @@
 #lang racket
+(require (only-in racket/struct make-constructor-style-printer))
 
 (provide ML-error? ML-error-ex ML-okay? ML-okay-val)
 
-(struct ML-error (ex)  #:transparent)
+(struct ML-error (ex)  #:transparent
+    #:property prop:custom-print-quotable 'never
+    #:methods gen:custom-write
+    [(define write-proc
+       (make-constructor-style-printer
+        (lambda (obj) 'ML-error)
+        (lambda (obj) (list (exn-message (ML-error-ex obj))))))])
 (struct ML-okay  (val) #:transparent)
 
 (require rackunit)
@@ -28,7 +35,7 @@
   (values nss lpns))
 
 (define (run/okay-or-error expr n)
-  (with-handlers ([exn? (λ (ex) (ML-error (exn-message ex)))])
+  (with-handlers ([exn? (λ (ex) (ML-error ex))])
     (ML-okay (force (eval expr n)))))
 
 (define (run-multiple e ns)
@@ -44,8 +51,7 @@
   (flush-output))
 
 (define (run-or-error-string expr n)
-  (with-handlers ([exn? (λ (ex)
-                          (print-exn ex))])
+  (with-handlers ([exn? (λ (ex) (print-exn ex))])
     (display (eval expr n))
     (flush-output)))
 
@@ -60,7 +66,9 @@
                   (flush-output)
                   (cond
                     [(ML-okay? r)  (writeln (ML-okay-val r))]
-                    [(ML-error? r) ((error-display-handler) (exn-message (ML-error-ex r)) (ML-error-ex r))]
+                    [(ML-error? r)
+                     (let ([the-exn (ML-error-ex r)])
+                       ((error-display-handler) (exn-message the-exn) the-exn))]
                     [else (error 'multi-runner "shouldn't have gotten here: ~a" r)]))
                 results lang-print-names)))
   (newline)
