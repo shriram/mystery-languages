@@ -13,7 +13,7 @@
 (define-syntax (multi-runner stx)
   (syntax-case stx (TEST)
     [(_ (TEST e r ...))
-     #`(test-output 'e (list 'r ...) namespaces)]
+     #`(test-output 'e (list #'r ...) namespaces)]
     [(_ e)
      #`(show-output 'e namespaces lang-print-names)]))
 
