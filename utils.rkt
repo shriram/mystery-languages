@@ -1,6 +1,6 @@
 #lang racket
 
-(provide show record-local-function is-local-function?)
+(provide show)
 
 (define (show V . m)
   (unless (empty? m)
@@ -10,11 +10,33 @@
   (newline)
   V)
 
-(define-values (record-local-function is-local-function?)
-  (let ([locally-defined-functions (box '())])
-    (values (lambda (fun-val)
-              (set-box! locally-defined-functions (cons fun-val (unbox locally-defined-functions)))
-              fun-val)
-            (lambda (fun-val)
-              (memq fun-val (unbox locally-defined-functions))))))
+;; ----------
 
+(provide box-unbox)
+
+(define (box-unbox e)
+  (box (unbox e)))
+
+;; ---------- observable
+
+(provide observe gen:observable)
+(require racket/generic)
+
+(define-generics observable
+  (observe observable)
+  #:defaults ([promise?
+               (define (observe p)
+                (force p))]
+              [box?
+               (define (observe b)
+                (unbox b))]
+              [any/c
+               (define (observe v) v)]))
+
+;; ---------- user-defined-function
+
+(provide ud-proc ud-proc?)
+
+(struct ud-proc (base)
+    #:property prop:procedure
+               (struct-field-index base))

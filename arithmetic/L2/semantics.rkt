@@ -8,10 +8,23 @@
       (exact->inexact d)
       d))
 
-(define-syntax-rule (my-#%app fun arg ...)
-  (#%app (#%app inexact-value fun) (#%app inexact-value arg) ...))
+(define (make-my +)
+  (lambda args
+    (if (andmap exact-integer? args)
+        (apply + args)
+        (apply + (map inexact-value args)))))
+(define my+ (make-my +))
+(define my- (make-my -))
+(define my* (make-my *))
 
-(provide + - * /
+;; division is always in float point
+(define (my/ . args)
+  (apply / (map inexact-value args)))
+
+(provide (rename-out [my+ +])
+         (rename-out [my- -])
+         (rename-out [my* *])
+         (rename-out [my/ /])
          < <= > >=
          = <>
          ++
@@ -19,5 +32,5 @@
          #%module-begin
          #%top-interaction
          #%top
-         (rename-out [my-#%app #%app])
+         #%app
          #%datum)

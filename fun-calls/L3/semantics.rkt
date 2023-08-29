@@ -45,19 +45,21 @@
 (define-syntax-rule (lazy-app f a ...)
   (f (lambda () a) ...))
 
-(define-syntax-rule (deffun (f a ...) body)
-  (define f
-    (let ([return-k #f])
-      (lambda (a ...)
-        (define (run)
-          (let ([a (a)] ...)
-            body))
-        (cond
-          [return-k
-           (return-k (run))]
-          [else
-           (let/cc k
-             (dynamic-wind
-              (lambda () (set! return-k k))
-              (lambda () (run))
-              (lambda () (set! return-k #f))))])))))
+(define-syntax (deffun stx)
+  (syntax-parse stx
+    [(_ (f:id a:id ...) body:expr)
+     #'(define f
+         (let ([return-k #f])
+           (lambda (a ...)
+             (define (run)
+               (let ([a (a)] ...)
+                 body))
+             (cond
+               [return-k
+               (return-k (run))]
+               [else
+               (let/cc k
+                 (dynamic-wind
+                   (lambda () (set! return-k k))
+                   (lambda () (run))
+                   (lambda () (set! return-k #f))))]))))]))

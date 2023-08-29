@@ -3,44 +3,68 @@
 (require [for-syntax syntax/parse] mystery-languages/utils mystery-languages/common)
 (require [for-syntax racket])
 
-(provide #%module-begin #%top-interaction
-         #%datum #%top)
+(provide #%module-begin #%top-interaction)
 
-(provide + - * /
+(provide #%datum #%top
+         + - * /
          < <= > >=
          = <>
-         defvar
          ++
-         if and or not
+         not)
+(provide (rename-out
+          [my-begin begin]
+          [my-if if]
+          [my-and and]
+          [my-or or]
+          [my-app #%app]
+          [my-set! set!]))
+(provide defvar
          deffun)
 
-(provide begin set!)
+(define-syntax-rule (my-begin any ...) (begin (observe any) ...))
+(define-syntax-rule (my-if any ...) (if (observe any) ...))
+(define-syntax-rule (my-and any ...) (and (observe any) ...))
+(define-syntax-rule (my-or any ...) (or (observe any) ...))
 
-(provide (rename-out [app-by-copy-result #%app]))
+(define-syntax-rule (my-app fun arg ...)
+  (let ([f (observe fun)])
+    (if (ud-proc? f)
+        (f (as-box arg) ...)
+        (f (observe arg) ...))))
+
+(define-syntax (as-box stx)
+  (syntax-parse stx
+    [(_ x:id)
+     #'x]
+    [(_ e)
+     #'(box e)]))
+
+(define-syntax (my-set! stx)
+  (syntax-parse stx
+    [(_ var:id rhs:expr)
+     #'(set-box! var (observe rhs))]))
+
+(define-syntax (defvar stx)
+  (syntax-parse stx
+    [(_ var:id rhs:expr)
+     #'(define var (box (observe rhs)))]))
+#;
+(define-syntax (deffun stx)
+  (syntax-parse stx
+    [(_ (fun:id arg:id ...) . body)
+     #'(defvar fun
+         (ud-proc
+           (lambda (arg ...)
+             (observe (let () . body)))))]))
 
 (define-syntax (deffun stx)
   (syntax-parse stx
-    [(_ (fname:id arg:id ...) body:expr ...+)
-     #'(define fname
-         (record-local-function
-          (lambda (arg ...)
-            (let ([answer ((thunk body ...))]) ;; the thunk allows internal definitions
-              (values answer
-                      (list arg ...))))))]))
-
-(define-syntax (app-by-copy-result stx)
-  (syntax-case stx ()
-    [(_ f a ...)
-     #`(if (is-local-function? f)
-           (let-values ([(answer updated-vars)
-                         (f a ...)])
-             #,@(let ([a--- (syntax->list #'(a ...))])
-                  (map (λ (v idx)
-                         (if (identifier? v)
-                             #`(set! #,v (list-ref updated-vars #,idx))
-                             #'void))  ;; void because we don't want to repeat any effectful expressions!
-                       a---
-                       (range 0 (length a---))))
-             answer)
-           (f a ...))]))
-
+    [(_ (fun:id arg:id ...) . body)
+     #'(defvar fun
+         (ud-proc
+           (lambda (arg ...)
+             (let* ([arg0* (list arg ...)]
+                    [arg1* (map box-unbox arg0*)])
+               (begin0
+                 (observe (apply (lambda (arg ...) . body) arg1*))
+                 (for-each set-box! arg0* (map unbox arg1*)))))))]))
