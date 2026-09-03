@@ -1,0 +1,4 @@
+#lang mystery-languages/sh-fields
+
+def o = {a: 43, b: "hello"}
+check: o.a ~is [43, 43, 43]

@@ -1,0 +1,8 @@
+#lang mystery-languages/sh-scope
+
+def x = 1
+fun f(y): x + y
+check: f(2) ~is [3, 3]
+check: let z = 5: f(z) ~is [6, 6]
+map(fun (y): y + x, [10, 20])
+cons(1, [])

@@ -1,0 +1,19 @@
+#lang mystery-languages/sh-scope
+
+def x = 1
+fun f(y): x + y
+check: f(2) ~is [3, 3]
+check: (fun (y): y + x)(10) ~is [11, 11]
+check: let z = 5: z + 1 ~is [6, 6]
+map(fun (y): y * 2, [1, 2, 3])
+filter(fun (y): y > 1, [1, 2, 3])
+cons(1, [])
+cons(1, [2])
+check: let y = 2: let w = 3: y + w ~is [5, 5]
+fun apply_twice(fn, v): fn(fn(v))
+check: apply_twice(fun (q): q * 2, 3) ~is [12, 12]
+check: is_procedure(f) ~is [#true, #true]
+check: is_empty([]) ~is [#true, #true]
+check: is_empty([1]) ~is [#false, #false]
+check: (fun (): 7)() ~is [7, 7]
+check: (fun (a, b): a - b)(5, 3) ~is [2, 2]

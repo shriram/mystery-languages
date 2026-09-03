@@ -1,0 +1,33 @@
+#lang mystery-languages/sh-arithmetic
+
+// syntax coverage; every form has the same value in every variant
+def x = 3
+check: x ~is [3, 3, 3]
+1 + 2 + 3
+check: 1 + 2 + 3 ~is [6, 6, 6]
+check: 10 - 4 - 3 ~is [3, 3, 3]
+check: 2 * 3 * 4 ~is [24, 24, 24]
+check: 1 + 2 * 3 ~is [7, 7, 7]
+check: (1 + 2) * 3 ~is [9, 9, 9]
+check: 1 + 2 - 3 ~is [0, 0, 0]
+check: 1 - 2 + 3 ~is [2, 2, 2]
+check: -x ~is [-3, -3, -3]
+check: x - 5 ~is [-2, -2, -2]
+check: 1 < 2 < 3 ~is [#true, #true, #true]
+check: 2 <= 2 ~is [#true, #true, #true]
+check: 3 > 2 ~is [#true, #true, #true]
+check: 2 >= 3 ~is [#false, #false, #false]
+check: x == 3 ~is [#true, #true, #true]
+check: x != 3 ~is [#false, #false, #false]
+check: 1 + "a" ~is [failure, failure, failure]
+check: "a" ++ "b" ++ "c" ~is ["abc", "abc", "abc"]
+check: - 5 ~is [-5, -5, -5]
+check: -1 * x ~is [-3, -3, -3]
+check: 1 + -2 ~is [-1, -1, -1]
+check: 1 + 2 < 2 * 2 ~is [#true, #true, #true]
+check: 1 + 2 ~is [number, number, number]
+check: 1 + 2 ~is [!4, !4, !4]
+check: "hi" ~is [string, string, string]
+check: 1 == 1 ~is [boolean, boolean, boolean]
+check: -(-2) ~is [2, 2, 2]
+check: 2 * (3 - 1) * 4 ~is [16, 16, 16]

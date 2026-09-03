@@ -1,0 +1,23 @@
+#lang mystery-languages/sh-fun-calls
+
+fun f(): 3
+fun g(x): x + x
+fun h(x, y, z): x ++ y ++ z
+check: f() ~is [3, 3, 3]
+check: g(5) ~is [10, 10, 10]
+check: h("a", "b", "c") ~is ["abc", "abc", "abc"]
+fun twice(x): x + x
+check: twice(3) ~is [6, 6, 6]
+def z = 10
+fun addz(x): x + z
+check: addz(1) ~is [11, 11, 11]
+check: g("a") ~is [failure, failure, failure]
+check: f(1) ~is [failure, failure, failure]
+fun choose(c, a, b): if c | a | b
+check: choose(1 < 2, "yes", "no") ~is ["yes", "yes", "yes"]
+fun max2(a, b):
+  if a > b
+  | a
+  | b
+check: max2(1, 5) ~is [5, 5, 5]
+check: twice(1) ~is [number, number, number]

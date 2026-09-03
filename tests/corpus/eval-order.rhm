@@ -1,0 +1,18 @@
+#lang mystery-languages/sh-eval-order
+
+def v = 3
+fun f(x): x + 1
+check: f(v) ~is [4, 4]
+def count = 0
+fun tick():
+  block:
+    count := count + 1
+    count
+tick()
+check: count ~is [1, 1]
+fun first_of(a, b): a
+check: first_of(1, 2) ~is [1, 1]
+check: if 1 > 0 | "pos" | "neg" ~is ["pos", "pos"]
+check: #false && #true ~is [#false, #false]
+check: (block: v := 10; v + 1) ~is [11, 11]
+check: "a" ++ "b" ~is ["ab", "ab"]

@@ -1,0 +1,3 @@
+#lang mystery-languages/sh-conditionals
+
+check: if #true | 1 | 2 ~is [1, 1, 1]

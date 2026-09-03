@@ -1,0 +1,16 @@
+#lang mystery-languages/sh-mut-structs
+
+def o = {a: 43, b: "hello"}
+o.a := 17
+check: o.a ~is [17, 17, 17]
+def n = {inner: {x: 1}}
+n.inner.x := 2
+check: n.inner.x ~is [2, 2, 2]
+check: o["a"] := 5 ~is [failure, failure, failure]
+o.b := "bye"
+check: o.b ~is ["bye", "bye", "bye"]
+check: o.zz ~is [failure, failure, failure]
+fun mk(v): {val: v}
+check: mk(9).val ~is [9, 9, 9]
+o.a := o.a + 1
+check: o.a ~is [18, 18, 18]

@@ -1,0 +1,36 @@
+#lang mystery-languages/sh-mut-vars
+
+def v = 3
+v := 4
+check: v ~is [4, 4, 4]
+check: block:
+         1
+         2
+         3
+       ~is [3, 3, 3]
+check: (block: v := 100; v) ~is [100, 100, 100]
+fun inc(x):
+  block:
+    x := x + 1
+    x
+check: inc(7) ~is [8, 8, 8]
+fun two(x, y):
+  block:
+    x := 1
+    y := 2
+    x + y
+check: two(5, 6) ~is [3, 3, 3]
+v := v + 1
+check: if v == 101 | "one" | "other" ~is ["one", "one", "one"]
+def w = 0
+block:
+  w := 1
+  w := w + 1
+check: w ~is [2, 2, 2]
+fun bump():
+  block:
+    w := w + 10
+    w
+check: bump() ~is [12, 12, 12]
+check: w ~is [12, 12, 12]
+check: v := 5 ~is [void, void, void]

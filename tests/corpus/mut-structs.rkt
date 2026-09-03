@@ -1,0 +1,16 @@
+#lang mystery-languages/mut-structs
+
+(defvar o (object [a 43] [b "hello"]))
+(oset o a 17)
+(TEST (oget o a) 17 17 17)
+(defvar n (object [inner (object [x 1])]))
+(oset (oget n inner) x 2)
+(TEST (oget (oget n inner) x) 2 2 2)
+(TEST (oset o "a" 5) failure failure failure)
+(oset o b "bye")
+(TEST (oget o b) "bye" "bye" "bye")
+(TEST (oget o zz) failure failure failure)
+(deffun (mk v) (object [val v]))
+(TEST (oget (mk 9) val) 9 9 9)
+(oset o a (+ (oget o a) 1))
+(TEST (oget o a) 18 18 18)

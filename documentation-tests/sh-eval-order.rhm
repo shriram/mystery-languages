@@ -1,0 +1,8 @@
+#lang mystery-languages/sh-eval-order
+
+def v = 3
+fun f(x):
+  block:
+    v := v + 1
+    x
+check: f(v) ~is [3, 3]

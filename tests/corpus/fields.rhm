@@ -1,0 +1,12 @@
+#lang mystery-languages/sh-fields
+
+def o = {a: 43, b: "hello"}
+check: o.a ~is [43, 43, 43]
+check: o.b ~is ["hello", "hello", "hello"]
+check: o.c ~is [failure, failure, failure]
+check: {a: {b: 1}}.a.b ~is [1, 1, 1]
+check: {n: {m: 2}}.n.m ~is [2, 2, 2]
+fun getA(o): o.a
+check: getA(o) ~is [43, 43, 43]
+check: o.a + 1 ~is [44, 44, 44]
+check: if o.a == 43 | "yes" | "no" ~is ["yes", "yes", "yes"]

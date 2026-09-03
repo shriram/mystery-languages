@@ -5,6 +5,9 @@
 (provide (rename-out [mod-begin #%module-begin]
                      [ti        #%top-interaction]))
 
+;; the variant list, shared with the Shrubbery front-end (sh/langs.rkt)
+(provide namespaces lang-print-names)
+
 (define-values (namespaces lang-print-names)
   (make-namespaces-and-lang-print-names (list 'mystery-languages/arithmetic/L1/semantics
                                               'mystery-languages/arithmetic/L2/semantics

@@ -1,0 +1,10 @@
+#lang mystery-languages/sh-strings
+
+check: "a" == "a" ~is [#true, #true, #true]
+check: "a" == "b" ~is [#false, #false, #false]
+check: string_ref("abc", 1) ~is [Char"b", Char"b", Char"b"]
+check: string_ref("abc", 0) ~is [Char"a", Char"a", Char"a"]
+string_ref("hello", 0)
+check: "" == "" ~is [#true, #true, #true]
+check: ("a" == "a") == "a" ~is [failure, failure, failure]
+check: "x" ~is [string, string, string]
