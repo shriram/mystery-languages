@@ -6,7 +6,8 @@
 ;; list of families.
 
 (require (for-syntax racket/base racket/list racket/string shrubbery/print "translate.rkt")
-         mystery-languages/make-semantics)
+         mystery-languages/make-semantics
+         "unparse.rkt")
 
 (provide define-sh-language)
 
@@ -25,12 +26,14 @@
       (datum->syntax #'test-output (string-trim (shrubbery-syntax->string stx) #:left? #f)))
     (case kind
       [(test)
-       #`(test-output '#,(datum->syntax #f datum)
-                      (list #,@(for/list ([e expecteds]) #`(quote-syntax #,e)))
-                      #,ns
-                      #:source #,(source e-group))]
+       #`(parameterize ([current-error-message rewrite-exn] [error-print-width 1000])
+           (test-output '#,(datum->syntax #f datum)
+                        (list #,@(for/list ([e expecteds]) #`(quote-syntax #,e)))
+                        #,ns
+                        #:source #,(source e-group)))]
       [(show)
-       #`(show-output '#,(datum->syntax #f datum) #,ns #,lpn #:source #,(source g))]))
+       #`(parameterize ([current-error-message rewrite-exn] [error-print-width 1000])
+           (show-output '#,(datum->syntax #f datum) #,ns #,lpn #:source #,(source g)))]))
 
   (define ((make-module-begin family ns lpn) stx)
     (syntax-case stx ()

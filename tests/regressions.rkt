@@ -4,11 +4,14 @@
 ;; Each file says in a comment which bug it guards against.  If a file
 ;; <name>.expect exists, every line of it must also appear in the output
 ;; of <name>.rkt and of <name>.rhm; this is for bugs in what gets
-;; printed, such as error messages.
+;; printed, such as error messages.  When the two syntaxes legitimately
+;; print differently, <name>.rkt.expect and <name>.rhm.expect take
+;; precedence for their own file.
 
 (require racket/runtime-path compiler/find-exe)
 
 (define-runtime-path dir "regressions")
+(define-runtime-path private-dir "../private/regressions")   ; optional, not in version control
 
 (define (run-file path)
   ;; stderr merged into stdout at the OS level, so error lines land where
@@ -23,10 +26,13 @@
   (values (zero? (subprocess-status proc)) output))
 
 (define failures 0)
-(for ([p (sort (directory-list dir #:build? #t) path<?)]
-      #:when (or (path-has-extension? p #".rkt") (path-has-extension? p #".rhm")))
+(for* ([d (filter directory-exists? (list dir private-dir))]
+       [p (sort (directory-list d #:build? #t) path<?)]
+       #:when (or (path-has-extension? p #".rkt") (path-has-extension? p #".rhm")))
   (define-values (ok? output) (run-file p))
-  (define expect-file (path-replace-extension p #".expect"))
+  (define expect-file
+    (let ([own (path-add-extension p #".expect")])   ; <name>.rhm.expect
+      (if (file-exists? own) own (path-replace-extension p #".expect"))))
   (define missing
     (if (file-exists? expect-file)
         (for/list ([line (file->lines expect-file)]
