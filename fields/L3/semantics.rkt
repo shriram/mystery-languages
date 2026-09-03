@@ -35,7 +35,8 @@
 (define-syntax (oget stx)
   (syntax-parse stx
     [(_ o:expr fn:expr)
-     #`(hash-ref (an-object-ht o)
-                 (wrap-fn-term fn)
-                 (λ ()
-                   (error 'oget "field ~a not found" fn-wrapped)))]))
+     #`(let ([fn-wrapped (wrap-fn-term fn)])
+         (hash-ref (an-object-ht o)
+                   fn-wrapped
+                   (λ ()
+                     (error 'oget "field ~a not found" fn-wrapped))))]))
