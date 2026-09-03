@@ -1,0 +1,6 @@
+#lang mystery-languages/sh-fields
+
+// `object` as an expected value used to fail for every value, because
+// each language namespace had its own copy of the an-object struct type.
+check: {a: 1} ~is [object, object, object]
+check: 5 ~is [!object, !object, !object]

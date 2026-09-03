@@ -18,7 +18,8 @@
 
 (require shrubbery/parse
          mystery-languages/sh/translate
-         racket/runtime-path)
+         racket/runtime-path
+         compiler/find-exe)
 
 (define-runtime-path corpus-dir "corpus")
 (define-runtime-path private-dir "../private/corpus")
@@ -57,10 +58,16 @@
     l))
 
 (define (run-file path)
-  (define out (open-output-string))
-  (parameterize ([current-output-port out] [current-error-port out])
-    (system* (find-system-path 'exec-file) (path->string path)))
-  (get-output-string out))
+  ;; stderr merged into stdout at the OS level, so error lines land where
+  ;; they were printed relative to the L<n>: lines (two pipes would
+  ;; interleave nondeterministically)
+  (define-values (proc out in err)
+    (subprocess #f #f 'stdout (find-exe) (path->string path)))
+  (close-output-port in)
+  (define output (port->string out))
+  (close-input-port out)
+  (subprocess-wait proc)
+  (values (zero? (subprocess-status proc)) output))
 
 (define failures 0)
 (define (report! fmt . args)
@@ -84,8 +91,10 @@
        (cond
          [n (report! "~a: form ~a differs~n  racket:    ~s~n  shrubbery: ~s" rhm n (list-ref expected n) (list-ref actual n))]
          [else (report! "~a: ~a forms vs ~a forms" rhm (length expected) (length actual))])])
-    (define out-rkt (result-lines (run-file rkt)))
-    (define out-rhm (result-lines (run-file rhm)))
+    (define-values (ok-rkt? raw-rkt) (run-file rkt))
+    (define-values (ok-rhm? raw-rhm) (run-file rhm))
+    (define out-rkt (result-lines raw-rkt))
+    (define out-rhm (result-lines raw-rhm))
     (cond
       [(equal? out-rkt out-rhm) (printf "ok   output       ~a~n" rhm)]
       [else
