@@ -1,0 +1,155 @@
+#lang racket
+;; Unit tests of the Shrubbery translator alone: source text in, the
+;; S-expression datum out.  No language variant is run, so this covers
+;; every syntactic form (and the error cases) without saying anything
+;; about how the variants behave.  Run with `racket tests/sh-translate-test.rkt`.
+
+(require rackunit shrubbery/parse mystery-languages/sh/translate)
+
+(define (t str [family 'fields])
+  (define in (open-input-string str))
+  (port-count-lines! in)
+  (for/list ([g (cdr (syntax->list (parse-all in #:source 'test)))])
+    (define-values (kind datum expecteds e-group) (translate-top g family))
+    (if (eq? kind 'test)
+        `(TEST ,datum ,@(map syntax->datum expecteds))
+        datum)))
+
+(define-syntax-rule (ok str datum ...) (check-equal? (t str) '(datum ...) str))
+(define-syntax-rule (ok/family family str datum ...) (check-equal? (t str 'family) '(datum ...) str))
+(define-syntax-rule (bad str) (check-exn exn:fail:syntax? (lambda () (t str)) str))
+
+;; definitions
+(ok "def x = 3" (defvar x 3))
+(ok "def x = 1 + 2" (defvar x (+ 1 2)))
+(ok "fun f(x, y): x + y" (deffun (f x y) (+ x y)))
+(ok "fun f(): 3" (deffun (f) 3))
+(ok "fun f(x):\n  x := 1\n  x" (deffun (f x) (set! x 1) x))
+(ok "fun f(x):\n  block:\n    x := 1\n    x" (deffun (f x) (begin (set! x 1) x)))
+
+;; literals and comments
+(ok "#true\n#false\n1\n1.5\n\"s\"" #t #f 1 1.5 "s")
+(ok "1 // c\n/* d */\n2 /* e */" 1 2)
+(ok "Char\"b\"" #\b)
+
+;; operators, precedence, chains
+(ok "1 + 2 + 3" (+ 1 2 3))
+(ok "1 + 2 - 3" (- (+ 1 2) 3))
+(ok "(1 + 2) + 3" (+ (+ 1 2) 3))
+(ok "1 + 2 * 3" (+ 1 (* 2 3)))
+(ok "(1 + 2) * 3" (* (+ 1 2) 3))
+(ok "10 / 5 / 2" (/ 10 5 2))
+(ok "-x * 2" (* (- x) 2))
+(ok "- 5" (- 5))
+(ok "-5" -5)
+(ok "1 - -2" (- 1 -2))
+(ok "-(-2)" (- -2))
+(ok "1 < 2 < 3" (< 1 2 3))
+(ok "a <= b" (<= a b))
+(ok "a > b" (> a b))
+(ok "a >= b" (>= a b))
+(ok "a == b" (= a b))
+(ok/family strings "a == b" (string=? a b))
+(ok "a != b" (<> a b))
+(ok "!a && b || c" (or (and (not a) b) c))
+(ok "a && b && c" (and a b c))
+(ok "!a == b" (not (= a b)))
+(ok "!(!a)" (not (not a)))
+(ok "\"a\" ++ \"b\" ++ \"c\"" (++ "a" "b" "c"))
+(bad "\"a\" +& \"b\"")
+(ok "1 + 2 < 2 * 2" (< (+ 1 2) (* 2 2)))
+
+;; conditionals and sequencing
+(ok "if c | 1 | 2" (if c 1 2))
+(ok "if a < b | x + 1 | y" (if (< a b) (+ x 1) y))
+(ok "if a\n| 1\n| 2" (if a 1 2))
+(ok "if a\n| if b\n  | 1\n  | 2\n| 3" (if a (if b 1 2) 3))
+(ok "(if a | 1 | 2) + 10" (+ (if a 1 2) 10))
+(ok "block:\n  1\n  2" (begin 1 2))
+(ok "(block: 1; 2)" (begin 1 2))
+
+;; assignment
+(ok "v := 4" (set! v 4))
+(ok "v := v + 1" (set! v (+ v 1)))
+(ok "o.a := 17" (oset o a 17))
+(ok "o.a.b := 1" (oset (oget o a) b 1))
+(ok "o[\"a\"] := 5" (oset o "a" 5))
+
+;; objects and fields
+(ok "{a: 43, b: \"hello\"}" (object (a 43) (b "hello")))
+(ok "{}" (object))
+(ok "{[k]: 1, \"x\" ++ \"y\": 2, 3: 4, [\"s\"]: 5}"
+    (object ((if #t k k) 1) ((++ "x" "y") 2) (3 4) ("s" 5)))
+(ok "o.a" (oget o a))
+(ok "o.a.b" (oget (oget o a) b))
+(ok "o[k]" (oget o (if #t k k)))
+(ok "o[\"a\"]" (oget o "a"))
+(ok "o[k ++ \"\"]" (oget o (++ k "")))
+(ok "f(1).a" (oget (f 1) a))
+(ok "{a: 1}.a" (oget (object (a 1)) a))
+(ok "o.a + 1" (+ (oget o a) 1))
+
+;; application
+(ok "f()" (f))
+(ok "g(1, 2)" (g 1 2))
+(ok "g(f(1), 2 + 3)" (g (f 1) (+ 2 3)))
+(ok "mk(1)(2)" ((mk 1) 2))
+(ok "(fun (x): x)(3)" ((lambda (x) x) 3))
+
+;; scope-family forms
+(ok "fun (x, y): x" (lambda (x y) x))
+(ok "fun (): 7" (lambda () 7))
+(ok "let x = 1: x + 1" (let ([x 1]) (+ x 1)))
+(ok "let x = 1: let y = 2: x + y" (let ([x 1]) (let ([y 2]) (+ x y))))
+(ok "[]" empty)
+(ok "[1, 2]" (list 1 2))
+(ok "cons(1, [])" (cons 1 empty))
+(ok "map(fun (y): y * 2, [1, 2])" (map (lambda (y) (* y 2)) (list 1 2)))
+(ok "is_empty(l)" (empty? l))
+(ok "is_procedure(f)" (procedure? f))
+(ok "string_ref(s, 1)" (string-ref s 1))
+
+;; check
+(ok "check: 1 + 2 ~is [3, failure, !4, 1/2, -1/2, -3, number, Char\"a\", \"s\", #true, void]"
+    (TEST (+ 1 2) 3 failure (not 4) 1/2 -1/2 -3 number #\a "s" #t void))
+(ok "check: x ~is [3, 3, 3]" (TEST x 3 3 3))
+(ok "check: if c | 1 | 2 ~is [1]" (TEST (if c 1 2) 1))
+(ok "check: let x = 1: x ~is [1]" (TEST (let ([x 1]) x) 1))
+(ok "check: (block: 1; 2) ~is [2]" (TEST (begin 1 2) 2))
+(ok "check: fun (x): x ~is [procedure]" (TEST (lambda (x) x) procedure))
+(ok "check:\n  if c\n  | 1\n  | 2\n  ~is [1]" (TEST (if c 1 2) 1))
+(ok "check: block:\n         1\n         2\n       ~is [2]" (TEST (begin 1 2) 2))
+(ok "check: v := 5 ~is [void]" (TEST (set! v 5) void))
+(ok "check: o.a := 1 ~is [void]" (TEST (oset o a 1) void))
+
+;; errors: located syntax errors, never internal ones
+(bad "1 < 2 <= 3")
+(bad "def = 3")
+(bad "def x 3")
+(bad "fun f(1): 1")
+(bad "fun f(x) x")
+(bad "check: 1 ~is 3")
+(ok "check: 1 ~is [1 + 2]" (TEST 1 (+ 1 2)))
+(ok "check: 1 ~is [-3, - 3]" (TEST 1 -3 (- 3)))
+(bad "check: 1")
+(bad "check:\n  1\n  2\n  ~is [1]")
+(bad "if c | 1")
+(bad "if c | 1 | 2 | 3")
+(bad "1 2")
+(bad "+ 1")
+(bad "1 +")
+(bad "x :=")
+(bad "a && ")
+(bad "()")
+(bad "(1, 2)")
+(bad "{a}")
+(bad "{: 1}")
+(bad "o[1, 2]")
+(bad "let x: 1")
+(bad "let x = 1")
+(bad "1 := 2")
+(bad "f(1) := 2")
+(bad "block: check: 1 ~is [1]")
+(bad "Char\"ab\"")
+(bad "~is")
+(bad "x ? y")

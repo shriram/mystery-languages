@@ -1,0 +1,31 @@
+#lang mystery-languages/sh-conditionals
+
+check: if #true | 1 | 2 ~is [1, 1, 1]
+check: if #false | 1 | 2 ~is [2, 2, 2]
+check: #true && #false ~is [#false, #false, #false]
+check: #false || #true ~is [#true, #true, #true]
+check: !#true ~is [#false, #false, #false]
+check: #true && #true && #true ~is [#true, #true, #true]
+check: #false || #false || #true ~is [#true, #true, #true]
+check: if 1 < 2 | 1 + 1 | 2 + 2 ~is [2, 2, 2]
+check: if !(1 == 2) | "y" | "n" ~is ["y", "y", "y"]
+check: 2 < 1 || #true && 3 > 2 ~is [#true, #true, #true]
+def y = if #true | 10 | 20
+check: y ~is [10, 10, 10]
+check:
+  if #true
+  | if #false
+    | 1
+    | 2
+  | 3
+  ~is [2, 2, 2]
+check: !(!#true) ~is [#true, #true, #true]
+check: !#false && 1 < 2 ~is [#true, #true, #true]
+check: (if #true && (#false || #true) | 0 - 1 | 1) ~is [-1, -1, -1]
+check: (if #true | 1 | 2) + 10 ~is [11, 11, 11]
+check: if (if #true | #false | #true) | 1 | 2 ~is [2, 2, 2]
+check:
+  if 1 < 2
+  | "less"
+  | "not"
+  ~is ["less", "less", "less"]

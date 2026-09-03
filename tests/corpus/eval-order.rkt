@@ -1,0 +1,15 @@
+#lang mystery-languages/eval-order
+
+(defvar v 3)
+(deffun (f x) (+ x 1))
+(TEST (f v) 4 4)
+(defvar count 0)
+(deffun (tick) (begin (set! count (+ count 1)) count))
+(tick)
+(TEST count 1 1)
+(deffun (first_of a b) a)
+(TEST (first_of 1 2) 1 1)
+(TEST (if (> 1 0) "pos" "neg") "pos" "pos")
+(TEST (and #f #t) #f #f)
+(TEST (begin (set! v 10) (+ v 1)) 11 11)
+(TEST (++ "a" "b") "ab" "ab")
