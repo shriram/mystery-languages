@@ -1,0 +1,7 @@
+#lang mystery-languages/sh-fields
+
+// L2 rejects a computed field name that is not a string.  The message
+// used to quote the expression; it is the value that was rejected.
+def o = {a: 1}
+o[1 + 1]
+{2 * 3: "six"}
