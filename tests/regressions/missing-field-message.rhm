@@ -1,0 +1,7 @@
+#lang mystery-languages/sh-fields
+
+// Looking up a missing field in L2 and L3 used to report
+// "fn-wrapped: undefined" instead of naming the field.
+def o = {a: 1}
+o.zz
+check: o.zz ~is [failure, failure, failure]

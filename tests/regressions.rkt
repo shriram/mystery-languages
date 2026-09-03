@@ -1,7 +1,10 @@
 #lang racket
 ;; Regression tests: every program under tests/regressions/ must run
 ;; without any test failure or error, in whichever syntax it is written.
-;; Each file says in a comment which bug it guards against.
+;; Each file says in a comment which bug it guards against.  If a file
+;; <name>.expect exists, every line of it must also appear in the output
+;; of <name>.rkt and of <name>.rhm; this is for bugs in what gets
+;; printed, such as error messages.
 
 (require racket/runtime-path compiler/find-exe)
 
@@ -23,12 +26,21 @@
 (for ([p (sort (directory-list dir #:build? #t) path<?)]
       #:when (or (path-has-extension? p #".rkt") (path-has-extension? p #".rhm")))
   (define-values (ok? output) (run-file p))
+  (define expect-file (path-replace-extension p #".expect"))
+  (define missing
+    (if (file-exists? expect-file)
+        (for/list ([line (file->lines expect-file)]
+                   #:unless (string-contains? output line))
+          line)
+        '()))
   (cond
-    [(and ok? (not (regexp-match? #rx"FAILURE|ERROR" output)))
+    [(and ok? (not (regexp-match? #rx"FAILURE|ERROR" output)) (null? missing))
      (printf "ok   ~a~n" p)]
     [else
      (set! failures (add1 failures))
-     (eprintf "FAIL ~a~n~a~n" p output)]))
+     (eprintf "FAIL ~a~n" p)
+     (for ([line missing]) (eprintf "  expected line not in output: ~a~n" line))
+     (eprintf "~a~n" output)]))
 
 (cond
   [(zero? failures) (printf "all regression tests passed~n")]
