@@ -24,7 +24,7 @@
      #`(let ([fn-v fn])
          (if (string? fn-v)
              fn-v
-             (error 'field-name "~a must be a name or string" 'fn)))]))
+             (error 'field-name "~a must be a name or string" fn-v)))]))
 
 (define-syntax (object stx)
   (syntax-parse stx
