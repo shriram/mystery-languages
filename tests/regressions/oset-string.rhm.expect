@@ -1,0 +1,5 @@
+L1: field assignment: expected identifier
+  at: "a"
+  in: o["a"] := 5
+L2: field assignment: expected identifier
+L3: field assignment: expected identifier

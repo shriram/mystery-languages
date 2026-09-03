@@ -1,0 +1,5 @@
+L1: deffun: unexpected term
+  at: (+ x 1)
+  in: (deffun (f x) x (+ x 1))
+L2: deffun: unexpected term
+L3: deffun: unexpected term

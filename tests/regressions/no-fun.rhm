@@ -1,0 +1,4 @@
+#lang mystery-languages/sh-conditionals
+
+// Error messages name constructs in the Shrubbery syntax (regression for the message rewriter).
+fun f(x): x

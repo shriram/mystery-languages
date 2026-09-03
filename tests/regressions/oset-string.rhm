@@ -1,0 +1,5 @@
+#lang mystery-languages/sh-mut-structs
+
+// Error messages name constructs in the Shrubbery syntax (regression for the message rewriter).
+def o = {a: 1}
+o["a"] := 5

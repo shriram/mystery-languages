@@ -1,0 +1,4 @@
+#lang mystery-languages/sh-arithmetic
+
+// Error messages name constructs in the Shrubbery syntax (regression for the message rewriter).
+y + 1

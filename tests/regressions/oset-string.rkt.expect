@@ -1,0 +1,5 @@
+L1: oset: expected identifier
+  at: "a"
+  in: (oset o "a" 5)
+L2: oset: expected identifier
+L3: oset: expected identifier

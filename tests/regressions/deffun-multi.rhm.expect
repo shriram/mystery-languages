@@ -1,0 +1,5 @@
+L1: fun: unexpected term
+  at: x + 1
+  in: fun f(x): x; x + 1
+L2: fun: unexpected term
+L3: fun: unexpected term
