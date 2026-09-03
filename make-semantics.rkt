@@ -42,7 +42,13 @@
 
   (define nss (map (λ (_) (make-base-empty-namespace)) language-specs))
 
+  ;; A fresh namespace re-instantiates every module but racket/base, so
+  ;; without this each language would get its own copy of common.rkt and
+  ;; therefore its own an-object struct type, and the `object` check
+  ;; below (which uses this module's an-object?) could never succeed.
+  (define here (current-namespace))
   (for-each (λ (ls ns)
+              (namespace-attach-module here 'mystery-languages/common ns)
               (parameterize ([current-namespace ns])
                 (namespace-require ls)))
             language-specs nss)
