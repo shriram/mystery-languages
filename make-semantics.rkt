@@ -61,8 +61,10 @@
          (c (thunk (observe (eval e n)))))
        ns cs))
 
-(define (show-output e namespaces lang-print-names)
-  (writeln e)
+(define (show-output e namespaces lang-print-names #:source [source #f])
+  ;; `source`: the program text to echo instead of the datum (the
+  ;; shrubbery front-end passes what the student wrote)
+  (if source (displayln source) (writeln e))
   (let ([results (run-multiple e namespaces)])
     (unless (andmap (λ (r)
                       (and (ML-okay? r) (void? (ML-okay-val r))))
@@ -80,8 +82,8 @@
   (newline)
   (flush-output))
 
-(define (test-output e expecteds namespaces)
-  (display "••••• TESTING ") (write e) (displayln " (blank if all tests pass)")
+(define (test-output e expecteds namespaces #:source [source #f])
+  (display "••••• TESTING ") (if source (display source) (write e)) (displayln " (blank if all tests pass)")
   (flush-output)
   (unless (= (length namespaces) (length expecteds))
     (error 'TEST "number of results ~a does not match number of result terms ~a"
