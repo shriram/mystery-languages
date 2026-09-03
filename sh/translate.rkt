@@ -9,7 +9,8 @@
 
 (require racket/match racket/list)
 
-(provide translate-top      ; group family -> (values 'show datum #f #f)
+(provide identifier-names   ; Shrubbery name -> Racket name, for built-in functions
+         translate-top      ; group family -> (values 'show datum #f #f)
                             ;               | (values 'test datum expected-stxs expr-group)
          translate-form)    ; group family -> datum (definitions and expressions; no `check`)
 

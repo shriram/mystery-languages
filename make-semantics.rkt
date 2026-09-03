@@ -55,6 +55,12 @@
 
   (values nss lpns))
 
+;; How an exception raised while running a program is turned into the
+;; text shown to the user.  The Shrubbery front-end installs a rewriter
+;; that prints any quoted datum in its own syntax.
+(provide current-error-message)
+(define current-error-message (make-parameter exn-message))
+
 (define (run/okay-or-error expr n)
   (with-handlers ([exn? (λ (ex) (ML-error ex))])
     (ML-okay (observe (eval expr n)))))
@@ -62,9 +68,19 @@
 (define (run-multiple e ns)
   (map (λ (n) (run/okay-or-error e n)) ns))
 
+;; For tests: re-raise with the rewritten message, so that rackunit's
+;; reports of unexpected exceptions show it too.
+(define (eval/rewritten-errors e n)
+  (define rewrite (current-error-message))
+  (if (eq? rewrite exn-message)
+      (observe (eval e n))
+      (with-handlers ([exn:fail? (λ (ex)
+                                   (raise (exn:fail (rewrite ex) (exn-continuation-marks ex))))])
+        (observe (eval e n)))))
+
 (define (test-multiple e ns cs)
   (map (λ (n c)
-         (c (thunk (observe (eval e n)))))
+         (c (thunk (eval/rewritten-errors e n))))
        ns cs))
 
 (define (show-output e namespaces lang-print-names #:source [source #f])
@@ -82,7 +98,7 @@
                     [(ML-okay? r)  (writeln (ML-okay-val r))]
                     [(ML-error? r)
                      (let ([the-exn (ML-error-ex r)])
-                       ((error-display-handler) (exn-message the-exn) #f))]
+                       ((error-display-handler) ((current-error-message) the-exn) #f))]
                     [else (error 'multi-runner "shouldn't have gotten here: ~a" r)]))
                 results lang-print-names)))
   (newline)
