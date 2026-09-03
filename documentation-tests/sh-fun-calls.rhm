@@ -1,0 +1,9 @@
+#lang mystery-languages/sh-fun-calls
+
+fun f(): 3
+fun g(x): x + x
+fun h(x, y, z): x ++ y ++ z
+
+check: f() ~is [3, 3, 3]
+check: g(5) ~is [10, 10, 10]
+check: h("a", "b", "c") ~is ["abc", "abc", "abc"]

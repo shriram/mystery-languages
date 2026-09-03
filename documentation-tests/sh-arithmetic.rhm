@@ -1,0 +1,4 @@
+#lang mystery-languages/sh-arithmetic
+
+def x = 3
+check: x ~is [3, 3, 3]

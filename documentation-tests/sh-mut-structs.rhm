@@ -1,0 +1,5 @@
+#lang mystery-languages/sh-mut-structs
+
+def o = {a: 43, b: "hello"}
+o.a := 17
+check: o.a ~is [17, 17, 17]
