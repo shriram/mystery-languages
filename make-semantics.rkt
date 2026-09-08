@@ -23,6 +23,9 @@
   (lambda (v display? the-port)
     (display "#<procedure>" the-port)))
 
+;; Print booleans as #true/#false, which both syntaxes read back.
+(print-boolean-long-form #t)
+
 (port-write-handler (current-output-port) (lambda (v port) (pretty-write v port #:newline? #f)))
 (port-display-handler (current-output-port) (lambda (v port) (pretty-display v port #:newline? #f)))
 (port-print-handler (current-output-port) (lambda (v port) (pretty-print v port #:newline? #f)))
