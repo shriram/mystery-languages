@@ -1,0 +1,2 @@
+#lang mystery-languages/sh-conditionals
+#true && #false
