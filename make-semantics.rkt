@@ -14,14 +14,26 @@
 (struct ML-okay  (val) #:transparent)
 
 (require racket/pretty)
+
+;; How a value is shown: in result lines, in rackunit's actual/expected
+;; lines, and in the `given:` part of contract errors.  #f means Racket's
+;; own printer (which is the parenthetical syntax); the Shrubbery
+;; front-end installs its own.
+(provide current-value->string)
+(define current-value->string (make-parameter #f))
+
+(define (value->string v)
+  (define printer (current-value->string))
+  (cond [printer (printer v)]
+        [(procedure? v) "#<procedure>"]
+        [else #f]))
 (pretty-print-size-hook
   (lambda (v display? the-port)
-    (if (procedure? v)
-        (string-length "#<procedure>")
-        #f)))
+    (define s (and (not display?) (value->string v)))
+    (and s (string-length s))))
 (pretty-print-print-hook
   (lambda (v display? the-port)
-    (display "#<procedure>" the-port)))
+    (display (value->string v) the-port)))
 
 ;; Print booleans as #true/#false, which both syntaxes read back.
 (print-boolean-long-form #t)

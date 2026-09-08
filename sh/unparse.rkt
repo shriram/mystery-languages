@@ -6,11 +6,26 @@
 ;; produced is canonical (one line, standard spacing), not the
 ;; student's original spelling.
 
-(require racket/match racket/string racket/list
+(require racket/match racket/string racket/list racket/math
          (only-in "translate.rkt" identifier-names))
 
 (provide unparse            ; datum -> string
+         unparse-value      ; value -> string: how a result is shown
          construct-name)    ; symbol -> string or #f: the Shrubbery name of a construct
+
+;; A value that a language produced, in the syntax a student would type
+;; to get it.  Values with no literal form (procedures, objects) print
+;; as opaque as they do in the parenthetical syntax.
+(define (unparse-value v)
+  (cond
+    [(boolean? v) (if v "#true" "#false")]
+    [(char? v) (format "Char~s" (string v))]
+    [(list? v) (string-append "[" (string-join (map unparse-value v) ", ") "]")]
+    [(eqv? v +inf.0) "#inf"]
+    [(eqv? v -inf.0) "#neginf"]
+    [(and (number? v) (nan? v)) "#nan"]
+    [(procedure? v) "#<procedure>"]
+    [else (format "~s" v)]))
 
 ;; Shrubbery names for the constructs and built-in functions, for the
 ;; `who:` part of an error message and for "undefined" messages.

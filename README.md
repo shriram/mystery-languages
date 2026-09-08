@@ -69,6 +69,9 @@ run by exactly the same language implementations, so anything you learn
 about a language in one syntax holds in the other. Use whichever you
 are comfortable with.
 
+Each syntax also shows results in its own notation: a character is
+`#\e` in one and `Char"e"` in the other, a list `(1 2)` and `[1, 2]`.
+
 The correspondence, for every construct in this document:
 
 | Parenthetical | Shrubbery | Notes |

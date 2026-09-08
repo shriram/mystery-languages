@@ -65,6 +65,18 @@
 (ok #\b "Char\"b\"")
 (ok #t "#true")
 
+;; values, as shown in results
+(check-equal? (unparse-value #t) "#true")
+(check-equal? (unparse-value #\e) "Char\"e\"")
+(check-equal? (unparse-value '()) "[]")
+(check-equal? (unparse-value (list 1 "a" #f (list #\b))) "[1, \"a\", #false, [Char\"b\"]]")
+(check-equal? (unparse-value +inf.0) "#inf")
+(check-equal? (unparse-value -inf.0) "#neginf")
+(check-equal? (unparse-value +nan.0) "#nan")
+(check-equal? (unparse-value 1/2) "1/2")
+(check-equal? (unparse-value "a\"b") "\"a\\\"b\"")
+(check-equal? (unparse-value (lambda (x) x)) "#<procedure>")
+
 ;; round trip over the corpora (private one too when present)
 (define-runtime-path corpus "corpus")
 (define-runtime-path private-corpus "../private/corpus")

@@ -26,13 +26,17 @@
       (datum->syntax #'test-output (string-trim (shrubbery-syntax->string stx) #:left? #f)))
     (case kind
       [(test)
-       #`(parameterize ([current-error-message rewrite-exn] [error-print-width 1000])
+       #`(parameterize ([current-error-message rewrite-exn] [error-print-width 1000]
+                        [current-value->string unparse-value]
+                        [error-value->string-handler (lambda (v n) (unparse-value v))])
            (test-output '#,(datum->syntax #f datum)
                         (list #,@(for/list ([e expecteds]) #`(quote-syntax #,e)))
                         #,ns
                         #:source #,(source e-group)))]
       [(show)
-       #`(parameterize ([current-error-message rewrite-exn] [error-print-width 1000])
+       #`(parameterize ([current-error-message rewrite-exn] [error-print-width 1000]
+                        [current-value->string unparse-value]
+                        [error-value->string-handler (lambda (v n) (unparse-value v))])
            (show-output '#,(datum->syntax #f datum) #,ns #,lpn #:source #,(source g)))]))
 
   (define ((make-module-begin family ns lpn) stx)
