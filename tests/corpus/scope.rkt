@@ -17,3 +17,4 @@
 (TEST (empty? (list 1)) #f #f)
 (TEST ((lambda () 7)) 7 7)
 (TEST ((lambda (a b) (- a b)) 5 3) 2 2)
+(list 1 (list 2 #t) empty)

@@ -8,3 +8,4 @@ string_ref("hello", 0)
 check: "" == "" ~is [#true, #true, #true]
 check: ("a" == "a") == "a" ~is [failure, failure, failure]
 check: "x" ~is [string, string, string]
+string_ref("hello", 1)

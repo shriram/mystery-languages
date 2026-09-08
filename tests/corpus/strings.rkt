@@ -8,3 +8,4 @@
 (TEST (string=? "" "") #t #t #t)
 (TEST (string=? (string=? "a" "a") "a") failure failure failure)
 (TEST "x" string string string)
+(string-ref "hello" 1)

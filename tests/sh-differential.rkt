@@ -18,6 +18,7 @@
 
 (require shrubbery/parse
          mystery-languages/sh/translate
+         mystery-languages/sh/unparse
          racket/runtime-path
          compiler/find-exe)
 
@@ -51,11 +52,31 @@
             datum)))))
 
 ;; Lines that carry results: per-language answers and rackunit failure
-;; details other than the location.
+;; details other than the location and `params:`, which lists the
+;; check's thunks (printed by whichever syntax is running).
 (define (result-lines output)
   (for/list ([l (string-split output "\n")]
-             #:when (regexp-match? #rx"^(L[0-9]+: |FAILURE|name:|actual:|expected:|message:|params:)" l))
+             #:when (regexp-match? #rx"^(L[0-9]+: |FAILURE|name:|actual:|expected:|message:)" l))
     l))
+
+;; The parenthetical syntax shows values with Racket's printer and error
+;; messages as the variants raise them; the Shrubbery syntax shows both
+;; its own way.  So a result line from the .rkt run is compared after
+;; its value (when it reads as one) or its error message has been put
+;; through the same rewriting.
+(define (shrubbery-values lines)
+  (for/list ([l lines])
+    (match l
+      [(regexp #rx"^(L[0-9]+: |actual: +|expected: +)(.*)$" (list _ prefix rest))
+       (define in (open-input-string rest))
+       (define v (with-handlers ([exn:fail:read? (λ (_) in)]) (read in)))
+       (cond
+         [(and (not (eq? v in)) (eof-object? (read in)))
+          (string-append prefix (unparse-value v))]
+         [(regexp-match? #rx"^L" prefix)
+          (string-append prefix (rewrite-exn (exn:fail rest (current-continuation-marks))))]
+         [else l])]
+      [_ l])))
 
 (define (run-file path)
   ;; stderr merged into stdout at the OS level, so error lines land where
@@ -93,7 +114,7 @@
          [else (report! "~a: ~a forms vs ~a forms" rhm (length expected) (length actual))])])
     (define-values (ok-rkt? raw-rkt) (run-file rkt))
     (define-values (ok-rhm? raw-rhm) (run-file rhm))
-    (define out-rkt (result-lines raw-rkt))
+    (define out-rkt (shrubbery-values (result-lines raw-rkt)))
     (define out-rhm (result-lines raw-rhm))
     (cond
       [(equal? out-rkt out-rhm) (printf "ok   output       ~a~n" rhm)]
